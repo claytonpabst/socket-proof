@@ -25,7 +25,7 @@ app.post('/api/newContact', function(req, res){
   });
   spaces[nsp].on('connection', function(socket){
     socket.on('chat message', function(msg){
-      spaces[nsp].emit('chat message', msg);
+      spaces[nsp].emit('chat message', "To " + nsp + " " + msg);
     });
   });
   res.send({status:200})
@@ -33,20 +33,6 @@ app.post('/api/newContact', function(req, res){
 
 app.get('/', function(req, res){
   res.sendFile(__dirname + '/index.html');
-});
-
-var nsp = io.of('/Hans')
-nsp.on('connection', function(socket){
-  console.log('a user connected');
-  socket.on('disconnect', function(){
-    console.log('user disconnected');
-  });
-});
-
-nsp.on('connection', function(socket){
-  socket.on('chat message', function(msg){
-    nsp.emit('chat message', msg);
-  });
 });
 
 http.listen(config.port, '0.0.0.0', function() {

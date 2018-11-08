@@ -8,9 +8,9 @@
       form { background: rgb(255, 255, 255); padding: 3px; position: fixed; bottom: 0; width: 100%; }
       form input { border: 0; padding: 10px; width: 90%; margin-right: .5%; }
       form button { width: 9%; background: rgb(130, 224, 255); border: none; padding: 10px; }
-      #messages { list-style-type: none; margin: 0; padding: 0; }
-      #messages li { padding: 5px 10px; }
-      #messages li:nth-child(odd) { background: #eee; }
+      .messages { list-style-type: none; margin: 0; padding: 0; }
+      .messages li { padding: 5px 10px; }
+      .messages li:nth-child(odd) { background: #eee; }
       .contacts{
         padding:15px;
         font-size: 20px;
@@ -18,13 +18,20 @@
       .contacts:hover{
         cursor: pointer;
       }
+      .messages-wrapper{
+        display: flex;
+        flex-direction: row;
+        width: 100%;
+        justify-content: space-between;
+        border: 2px solid black;
+      }
     </style>
     <script src="/socket.io/socket.io.js"></script>
     <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
     <script>
       $(function () {
 
-        let currentContact = 'Hans'
+        let currentContact = ''
         var socket = io("/Hans");
         
         $('form').submit(function(){
@@ -34,16 +41,17 @@
         });
 
         socket.on('chat message', function(msg){
-          $('#messages').append($('<li>').text(msg));
+          $('#' + currentContact.toLocaleLowerCase() + '-messages').append($('<li>').text(msg));
         });
 
         $(".contacts").on("click", function(){
           let newName = $(this).text()
+          currentContact = newName
           $("#sending-message-to").text("Sending Message To: " + newName)
           $.post('/api/newContact', {newNameSpace:newName}, function(res){
             socket = io('/' + newName, {forceNew:true})
             socket.on('chat message', function(msg){
-              $('#messages').append($('<li>').text(msg));
+              $('#' + currentContact.toLocaleLowerCase() + '-messages').append($('<li>').text(msg));
             });
           })
         })
@@ -59,9 +67,26 @@
       <div class="contacts">Russ</div>
       <div class="contacts">Isreal</div>
     </div>
-    <ul id="messages"></ul>
+    <div class="messages-wrapper">
+      <div>
+        <p>Hans</p>
+        <ul class="messages" id="hans-messages"></ul>
+      </div>
+      <div>
+        <p>Jess</p>
+        <ul class="messages" id="jess-messages"></ul>
+      </div>
+      <div>
+        <p>Russ</p>
+        <ul class="messages" id="russ-messages"></ul>
+      </div>
+      <div>
+        <p>Isreal</p>
+        <ul class="messages" id="isreal-messages"></ul>
+      </div>
+    </div>
     <form action="">
-      <p id="sending-message-to">Sending Message To: Hans</p>
+      <p id="sending-message-to">Sending Message To: .....</p>
       <input placeholder="New Message" id="m" autocomplete="off" /><button>Send</button>
     </form>
   </body>
